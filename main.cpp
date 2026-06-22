@@ -5,16 +5,18 @@
 
 // rules are:
 // each cycle, anyone that is infected spreads their infection to anyone next to them.
+// people only remain infected for 2 cycles - then are cured
+// people who are just cured are immune to being infected that cycle
 
 
 
 int main() {
-    // 1 = diseased 0 = safe
-    std::vector<std::vector<bool>> diseaseMatrix = {
-        { 1, 0, 0, 1 },
+    // each entry is how long until they are cured.
+    std::vector<std::vector<int>> diseaseMatrix = {
+        { 2, 0, 0, 0 },
         { 0, 0, 0, 0 },
         { 0, 0, 0, 0 },
-        { 1, 0, 0, 0 },
+        { 0, 0, 0, 0 },
     };
 
     // 1 = tile "active" 0 = "inactive"
@@ -26,7 +28,7 @@ int main() {
         { 1, 0, 0, 0 },
       };
 
-    int numberOfCyclesToCompute = 5;
+    int numberOfCyclesToCompute = 10;
 
     for (int cycle = 0; cycle < numberOfCyclesToCompute; ++cycle) {
         auto inBounds = [&](int x, int y) {
@@ -52,7 +54,9 @@ int main() {
                 }
 
                 // if tile is infected, skip processing
-                if (currentDiseaseTile == true) {
+                if (currentDiseaseTile > 0) {
+                    // decrement timer
+                    diseaseMatrixCopy[xPos][yPos]--;
                     continue;
                 }
 
@@ -63,7 +67,7 @@ int main() {
 
                     if (inBounds(newX, newY) && diseaseMatrix[newX][newY]) {
                         // infect
-                        diseaseMatrixCopy[xPos][yPos] = true;
+                        diseaseMatrixCopy[xPos][yPos] = INFECTED_TIME;
                         break;
                     }
                 }
